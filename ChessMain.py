@@ -85,41 +85,176 @@ class ChessMain(Board, Player):
         self.players = [0 for i in range(2)]
         self.players[0] = Player(Player1, "W")
         self.players[1] = Player(Player2, "B")
+    def check_check(self):
+        """king is on tile in range of opponent"""
+    def check_winner(self):
+        """king is in check and cannot be saved"""
     def check_pick(self, row, col):
+        print("checking pick")
         return self.chessBoard.tiles[row][col].color
-    def check_place(self, pickr, pickc, row, col, piece):
-        if piece == "p" and ((pickr-1 == row and (pickc+1 == col or pickc-1 == col or pickc == col))
-                             or(pickr-2==row and pickc==col)):
+    def check_place(self, pickr, pickc, row, col, piece, player):
+        print("checking placement")
+        if piece == "p" and ((pickr == row+1 and pickc == col and self.chessBoard.tiles[pickr][pickc].color == "X")
+                             or ((pickr == row+1 and (pickc+1 == col or pickc-1 == col)
+                                 and (self.chessBoard.tiles[row][col].color != "X"
+                                and self.chessBoard.tiles[row][col].color !=self.chessBoard.tiles[pickr][pickc].color))
+                             or((pickr==row+2 and pickc==col) and self.chessBoard.tiles[pickr-1][pickc].color == "X"
+                                and self.chessBoard.tiles[row][col].color == "X"))):
             print("moving pawn")
             return self.chessBoard.tiles[row][col].color            
-        elif piece == "P"and ((pickr+1 == row and (pickc+1 == col or pickc-1 == col or pickc == col))
-                              or (pickr+2 == row and pickc==col)):
+        elif piece == "P"and ((pickr == row-1 and pickc == col and self.chessBoard.tiles[pickr][pickc].color == "X")
+                             or ((pickr == row-1 and (pickc-1 == col or pickc+1 == col)
+                                 and (self.chessBoard.tiles[row][col].color != "X"
+                                and self.chessBoard.tiles[row][col].color !=self.chessBoard.tiles[pickr][pickc].color)))
+                             or((pickr==row-2 and pickc==col) and self.chessBoard.tiles[pickr+1][pickc].color == "X"
+                                and self.chessBoard.tiles[row][col].color == "X")):
             print("moving pawn")
             return self.chessBoard.tiles[row][col].color
-        elif (piece == "r" or piece == "R") and ((pickr == row and pickc != col) or (pickc == col and pickr != row)):
-            print("moving rook")
-            return self.chessBoard.tiles[row][col].color
-        elif (piece == "b" or piece == "B") and (pickr - row == pickc-col or pickr - row == -(pickc-col)
-                                                 or row-pickr == pickc-col or row-pickr  == -(pickc-col)):
-            print("moving bishop")
-            return self.chessBoard.tiles[row][col].color
+
         elif (piece == "n"or piece == "N") and ((pickr == row-2 and pickc == col+1)or (pickr == row+2 and pickc == col-1)
                                                 or (pickr == row+2 and pickc == col+1)or(pickr == row+1 and pickc == col+2)
                                                 or (pickr == row-2 and pickc == col-1)or(pickr == row+1 and pickc == col-2)
                                                 or(pickr == row-1 and pickc == col-2)or(pickr == row-1 and pickc == col+2)):
             print("moving knight")
             return self.chessBoard.tiles[row][col].color
-        elif (piece == "q" or piece == "Q") and ((pickr - row == pickc-col or pickr - row == -(pickc-col)
-                                                or row-pickr == pickc-col or row-pickr  == -(pickc-col))
-                                                or((pickr == row and pickc != col) or (pickc == col and pickr != row))):
-            print("moving queen")
-            return self.chessBoard.tiles[row][col].color
-        elif (piece == "k" or piece == "K") and ((pickr == row+1 and pickc ==col)or(pickr == row-1 and pickc ==col)
-                                                 or(pickr == row and pickc ==col+1)or(pickr == row and pickc ==col-1)):
+        
+        elif (piece == "k" or piece == "K") and ((pickr == row+1 and pickc ==col)or(pickr == row-1 and pickc ==col) or(pickr == row and pickc ==col+1)or(pickr == row and pickc ==col-1)) and (self.chessBoard.tiles[row][col].color != self.players[player].sym):
             print("moving king")
             return self.chessBoard.tiles[row][col].color
+        
+        elif (piece == "b" or piece == "B"):
+            if pickr < row:
+                if pickc < col:
+                    for i in range(pickr, row):
+                        for j in range(pickc, col):
+                            print("<r<c", i, j)
+                            if (i-row) == (j-col):
+                                if self.chessBoard.tiles[i][j].color != "X":
+                                    return self.players[player].sym
+                            else:
+                                pass
+                elif pickc > col:
+                    for i in range(pickr, row):
+                        for j in range(col, pickc):
+                            print("<r>c",i,j)
+                            if (i-row) == (col-j):
+                                if self.chessBoard.tiles[i][j].color != "X":
+                                    return self.players[player].sym
+                            else:
+                                pass
+            elif pickr > row:
+                if pickc < col:
+                    for i in range(row,pickr):
+                        for j in range(pickc, col):
+                            print(">r<c",i,j)
+                            if (row-i) == (j-col):
+                                if self.chessBoard.tiles[i][j].color != "X":
+                                    return self.players[player].sym
+                            else:
+                                pass
+                elif pickc > col:
+                    for i in range(row,pickr):
+                        for j in range(col, pickc):
+                            print(">r>c",i,j)
+                            if (row-i) == (col-j):
+                                if self.chessBoard.tiles[i][j].color != "X":
+                                    return self.players[player].sym
+                            else:
+                                pass
+            print("moving bishop")
+            return self.chessBoard.tiles[row][col].color
+        
+        elif (piece == "r" or piece == "R"):
+            if pickc != col and pickr == row:
+                if pickc > col:
+                    for x in range(pickc, col,-1):
+                        if self.chessBoard.tiles[row][x].color != "X":
+                            return self.players[player].sym
+                elif pickc < col:
+                    for x in range(pickc, col,1):
+                        if self.chessBoard.tiles[row][x].color != "X":
+                            return self.players[player].sym
+            elif pickr != row and pickc == col:
+                if pickr > row:
+                    for t in range(pickr, row,-1):
+                        if self.chessBoard.tiles[t][col].color != "X":
+                            return self.players[player].sym
+                elif pickr < row:
+                    for t in range(pickr, row,1):
+                        if self.chessBoard.tiles[t][col].color != "X":
+                            return self.players[player].sym
+            else:
+                return self.players[player].sym
+            print("moving rook")
+            return self.chessBoard.tiles[row][col].color
+        
+        elif (piece == "q" or piece == "Q"):
+            if ((pickr - row == pickc-col or pickr - row == -(pickc-col)
+                or row-pickr == pickc-col or row-pickr  == -(pickc-col))
+                or((pickr == row and pickc != col) or (pickc == col and pickr != row))):
+                if pickc != col and pickr == row:
+                    if pickc > col:
+                        for x in range(pickc, col,-1):
+                            if self.chessBoard.tiles[row][x].color != "X":
+                                return self.players[player].sym
+                    elif pickc < col:
+                        for x in range(pickc, col,1):
+                            if self.chessBoard.tiles[row][x].color != "X":
+                                return self.players[player].sym
+                elif pickr != row and pickc == col:
+                    if pickr > row:
+                        for t in range(pickr, row,-1):
+                            if self.chessBoard.tiles[t][col].color != "X":
+                                return self.players[player].sym
+                    elif pickr < row:
+                        for t in range(pickr, row,1):
+                            if self.chessBoard.tiles[t][col].color != "X":
+                                return self.players[player].sym
+                else:
+                    if pickr < row:
+                        if pickc < col:
+                            for i in range(pickr, row):
+                                for j in range(pickc, col):
+                                    print("<r<c", i, j)
+                                    if (i-row) == (j-col):
+                                        if self.chessBoard.tiles[i][j].color != "X":
+                                            return self.players[player].sym
+                                    else:
+                                        pass
+                        elif pickc > col:
+                            for i in range(pickr, row):
+                                for j in range(col, pickc):
+                                    print("<r>c",i,j)
+                                    if (i-row) == (col-j):
+                                        if self.chessBoard.tiles[i][j].color != "X":
+                                            return self.players[player].sym
+                                    else:
+                                        pass
+                    elif pickr > row:
+                        if pickc < col:
+                            for i in range(row,pickr):
+                                for j in range(pickc, col):
+                                    print(">r<c",i,j)
+                                    if (row-i) == (j-col):
+                                        if self.chessBoard.tiles[i][j].color != "X":
+                                            return self.players[player].sym
+                                    else:
+                                        pass
+                        elif pickc > col:
+                            for i in range(row,pickr):
+                                for j in range(col, pickc):
+                                    print(">r>c",i,j)
+                                    if (row-i) == (col-j):
+                                        if self.chessBoard.tiles[i][j].color != "X":
+                                            return self.players[player].sym
+                                    else:
+                                        pass
+                        print("moving queen")
+                        return self.chessBoard.tiles[row][col].color
+                    else:
+                        return self.players[player].sym
         else:
-            return "X"
+            return self.players[player].sym
                              
     def get_piece(self, row, col):
         temp = self.chessBoard.tiles[row][col].piece
@@ -164,19 +299,19 @@ class ChessMain(Board, Player):
         elif a_row == "8":
             return 7
     def play_turn(self, pick_row, pick_col, place_row, place_col, player):
-        pick_col = self.convert_col(pick_col)
-        place_col = self.convert_col(place_col) 
-        pick_row = self.convert_row(pick_row)
-        place_row = self.convert_row(place_row)
+        pick_c = self.convert_col(pick_col)
+        place_c = self.convert_col(place_col) 
+        pick_r = self.convert_row(pick_row)
+        place_r = self.convert_row(place_row)
         """initiate game play"""
-        if self.check_pick(pick_row,pick_col) == self.players[player].sym:
-            if self.check_place(pick_row, pick_col, place_row,place_col, self.chessBoard.tiles[pick_row][pick_col].piece) != self.players[player].sym:
-                piece = self.get_piece(pick_row, pick_col)
-                self.make_move(place_row, place_col, self.players[player].sym, piece)
+        if self.check_pick(pick_r,pick_c) == self.players[player].sym:
+            if self.check_place(pick_r, pick_c, place_r,place_c, self.chessBoard.tiles[pick_r][pick_c].piece,player) != self.players[player].sym:
+                piece = self.get_piece(pick_r, pick_c)
+                self.make_move(place_r, place_c, self.players[player].sym, piece)
                 self.players[player].turn=False
                 print(self.players[player].name +" turn played")
             else:
-                print("cannot place piece ",pick_row+1,pick_col+1, " there",place_row+1, place_col+1)
+                print("cannot place piece ",pick_r+1,pick_c+1, " there",place_r+1, place_c+1)
         else:
             print("cannot pick this piece")
         
@@ -196,23 +331,32 @@ class ChessMain(Board, Player):
 game = ChessMain("Michael", "Computer")
 while game.game_won == False:
     while game.players[0].turn == True:
-        print("It is ",game.players[0].name, "'s turn")
-        game.print_board()
-        Michael_pick_row = input("Select pick Row: ")
-        Michael_pick_col = input("Select pick Col: ")
-        Michael_place_row = input("Select place Row: ")
-        Michael_place_col = input("Select place Col: ")
-        game.play_turn(Michael_pick_row,Michael_pick_col,Michael_place_row,Michael_place_col, 0)
+        try:
+            print("It is ",game.players[0].name, "'s turn")
+            game.print_board()
+            Michael_pick_row = input("Select pick Row: ")
+            Michael_pick_col = input("Select pick Col: ")
+            Michael_place_row = input("Select place Row: ")
+            Michael_place_col = input("Select place Col: ")
+            game.play_turn(Michael_pick_row,Michael_pick_col,Michael_place_row,Michael_place_col, 0)
+        except TypeError:
+            print("Incorrect input")
+            continue
         game.players[1].turn = True
     """check board state"""
     while game.players[1].turn == True:
-        print("It is ",game.players[1].name, "'s turn")
-        game.print_board()
-        Computer_pick_row = input("Select pick Row: ")
-        Computer_pick_col = input("Select pick Col: ")
-        Computer_place_row = input("Select place Row: ")
-        Computer_place_col = input("Select place Col: ")
-        game.play_turn(Computer_pick_row,Computer_pick_col,Computer_place_row,Computer_place_col, 1)
+        try:
+            print("It is ",game.players[1].name, "'s turn")
+            game.print_board()
+            Computer_pick_row = input("Select pick Row: ")
+            Computer_pick_col = input("Select pick Col: ")
+            Computer_place_row = input("Select place Row: ")
+            Computer_place_col = input("Select place Col: ")
+            game.play_turn(Computer_pick_row,Computer_pick_col,Computer_place_row,Computer_place_col, 1)
+        except TypeError:
+            print("Incorrect input")
+            continue
         game.players[0].turn = True
     """check board state"""
 """report winner"""
+
