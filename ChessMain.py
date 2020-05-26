@@ -79,28 +79,22 @@ class Player():
 class ChessMain(Board, Player):
     def __init__(self,Player1,Player2):
         self.game_won = False
+        self.check = False
         """create starting board"""
         self.chessBoard = Board()
         """input players"""
         self.players = [0 for i in range(2)]
         self.players[0] = Player(Player1, "W")
-        self.players[1] = Player(Player2, "B")
-    def check_check(self):
-        """king is on tile in range of opponent"""
-    def check_winner(self):
-        """king is in check and cannot be saved"""
+        self.players[1] = Player(Player2, "B")       
     def check_pick(self, row, col):
-        print("checking pick")
         return self.chessBoard.tiles[row][col].color
     def check_place(self, pickr, pickc, row, col, piece, player):
-        print("checking placement")
         if piece == "p" and ((pickr == row+1 and pickc == col and self.chessBoard.tiles[pickr][pickc].color == "X")
                              or ((pickr == row+1 and (pickc+1 == col or pickc-1 == col)
                                  and (self.chessBoard.tiles[row][col].color != "X"
                                 and self.chessBoard.tiles[row][col].color !=self.chessBoard.tiles[pickr][pickc].color))
                              or((pickr==row+2 and pickc==col) and self.chessBoard.tiles[pickr-1][pickc].color == "X"
                                 and self.chessBoard.tiles[row][col].color == "X"))):
-            print("moving pawn")
             return self.chessBoard.tiles[row][col].color            
         elif piece == "P"and ((pickr == row-1 and pickc == col and self.chessBoard.tiles[pickr][pickc].color == "X")
                              or ((pickr == row-1 and (pickc-1 == col or pickc+1 == col)
@@ -108,18 +102,15 @@ class ChessMain(Board, Player):
                                 and self.chessBoard.tiles[row][col].color !=self.chessBoard.tiles[pickr][pickc].color)))
                              or((pickr==row-2 and pickc==col) and self.chessBoard.tiles[pickr+1][pickc].color == "X"
                                 and self.chessBoard.tiles[row][col].color == "X")):
-            print("moving pawn")
             return self.chessBoard.tiles[row][col].color
 
         elif (piece == "n"or piece == "N") and ((pickr == row-2 and pickc == col+1)or (pickr == row+2 and pickc == col-1)
                                                 or (pickr == row+2 and pickc == col+1)or(pickr == row+1 and pickc == col+2)
                                                 or (pickr == row-2 and pickc == col-1)or(pickr == row+1 and pickc == col-2)
                                                 or(pickr == row-1 and pickc == col-2)or(pickr == row-1 and pickc == col+2)):
-            print("moving knight")
             return self.chessBoard.tiles[row][col].color
         
         elif (piece == "k" or piece == "K") and ((pickr == row+1 and pickc ==col)or(pickr == row-1 and pickc ==col) or(pickr == row and pickc ==col+1)or(pickr == row and pickc ==col-1)) and (self.chessBoard.tiles[row][col].color != self.players[player].sym):
-            print("moving king")
             return self.chessBoard.tiles[row][col].color
         
         elif (piece == "b" or piece == "B"):
@@ -127,7 +118,6 @@ class ChessMain(Board, Player):
                 if pickc < col:
                     for i in range(pickr, row):
                         for j in range(pickc, col):
-                            print("<r<c", i, j)
                             if (i-row) == (j-col):
                                 if self.chessBoard.tiles[i][j].color != "X":
                                     return self.players[player].sym
@@ -136,7 +126,6 @@ class ChessMain(Board, Player):
                 elif pickc > col:
                     for i in range(pickr, row):
                         for j in range(col, pickc):
-                            print("<r>c",i,j)
                             if (i-row) == (col-j):
                                 if self.chessBoard.tiles[i][j].color != "X":
                                     return self.players[player].sym
@@ -146,7 +135,6 @@ class ChessMain(Board, Player):
                 if pickc < col:
                     for i in range(row,pickr):
                         for j in range(pickc, col):
-                            print(">r<c",i,j)
                             if (row-i) == (j-col):
                                 if self.chessBoard.tiles[i][j].color != "X":
                                     return self.players[player].sym
@@ -155,13 +143,11 @@ class ChessMain(Board, Player):
                 elif pickc > col:
                     for i in range(row,pickr):
                         for j in range(col, pickc):
-                            print(">r>c",i,j)
                             if (row-i) == (col-j):
                                 if self.chessBoard.tiles[i][j].color != "X":
                                     return self.players[player].sym
                             else:
                                 pass
-            print("moving bishop")
             return self.chessBoard.tiles[row][col].color
         
         elif (piece == "r" or piece == "R"):
@@ -183,9 +169,6 @@ class ChessMain(Board, Player):
                     for t in range(pickr, row,1):
                         if self.chessBoard.tiles[t][col].color != "X":
                             return self.players[player].sym
-            else:
-                return self.players[player].sym
-            print("moving rook")
             return self.chessBoard.tiles[row][col].color
         
         elif (piece == "q" or piece == "Q"):
@@ -215,7 +198,6 @@ class ChessMain(Board, Player):
                         if pickc < col:
                             for i in range(pickr, row):
                                 for j in range(pickc, col):
-                                    print("<r<c", i, j)
                                     if (i-row) == (j-col):
                                         if self.chessBoard.tiles[i][j].color != "X":
                                             return self.players[player].sym
@@ -224,7 +206,6 @@ class ChessMain(Board, Player):
                         elif pickc > col:
                             for i in range(pickr, row):
                                 for j in range(col, pickc):
-                                    print("<r>c",i,j)
                                     if (i-row) == (col-j):
                                         if self.chessBoard.tiles[i][j].color != "X":
                                             return self.players[player].sym
@@ -234,7 +215,6 @@ class ChessMain(Board, Player):
                         if pickc < col:
                             for i in range(row,pickr):
                                 for j in range(pickc, col):
-                                    print(">r<c",i,j)
                                     if (row-i) == (j-col):
                                         if self.chessBoard.tiles[i][j].color != "X":
                                             return self.players[player].sym
@@ -243,18 +223,12 @@ class ChessMain(Board, Player):
                         elif pickc > col:
                             for i in range(row,pickr):
                                 for j in range(col, pickc):
-                                    print(">r>c",i,j)
                                     if (row-i) == (col-j):
                                         if self.chessBoard.tiles[i][j].color != "X":
                                             return self.players[player].sym
                                     else:
                                         pass
-                        print("moving queen")
-                        return self.chessBoard.tiles[row][col].color
-                    else:
-                        return self.players[player].sym
-        else:
-            return self.players[player].sym
+            return self.chessBoard.tiles[row][col].color
                              
     def get_piece(self, row, col):
         temp = self.chessBoard.tiles[row][col].piece
@@ -314,8 +288,54 @@ class ChessMain(Board, Player):
                 print("cannot place piece ",pick_r+1,pick_c+1, " there",place_r+1, place_c+1)
         else:
             print("cannot pick this piece")
+        print("Moving ",self.chessBoard.tiles[pick_r][pick_c].piece)
         
-    
+    def check_check(self, player):
+        """king is on tile in range of any opponent"""
+        '''Find king location'''
+        for i in range(0,8):
+            for j in range(0,8):
+                if self.chessBoard.tiles[i][j].color == self.players[player].sym:
+                    if self.chessBoard.tiles[i][j].piece == "k" or self.chessBoard.tiles[i][j].piece == "K":
+                        king_row = i
+                        king_col = j
+                    else:
+                        pass
+        '''check if in check'''
+        if player == 0:
+            for i in range(0,8):
+                for j in range(0,8):
+                    if self.chessBoard.tiles[i][j].piece == self.players[1].sym:
+                        if self.check_place(i,j,king_row,king_col, self.chessBoard.tiles[i][j].piece,1) == self.players[0].sym:
+                            print(self.players[player].name," is in check")
+                            return True
+        elif player == 1:
+            for i in range(0,8):
+                for j in range(0,8):
+                    if self.chessBoard.tiles[i][j].piece == self.players[0].sym:
+                        if self.check_place(i,j,king_row,king_col, self.chessBoard.tiles[i][j].piece,0) == self.players[1].sym:
+                            print(self.players[player].name," is in check")
+                        return True     
+    def check_winner(self, player):
+        """king is in check and can not be saved"""
+        if self.check_check(player) == True and self.King_Dead(player) == True:
+            self.game_won == True
+            print(self.players[player].name," has lost")
+    def King_Dead(self, player):
+        """King can not be saved = moving one piece will not stop check"""
+        for i in range(0,8):
+            for j in range(0,8):
+                if self.check_pick(i,j) == self.players[player].sym:
+                    for x in range(0,8):
+                        for y in range(0,8):
+                            if self.check_place(i,j,x,y,self.chessBoard.tiles[i][j].piece, player)== self.players[player].sym:
+                                if self.check_check(player) != True:
+                                    return False
+                                else:
+                                    if self.check_place(x,y,i,j,self.chessBoard.tiles[i][j].piece, player)== self.players[player].sym:
+                                        pass
+        return True 
+ 
         """Save game"""
     def print_board(self):
         print("|",self.chessBoard.tiles[0][7].piece,"|",self.chessBoard.tiles[0][6].piece,"|",self.chessBoard.tiles[0][5].piece,"|",self.chessBoard.tiles[0][4].piece,"|",self.chessBoard.tiles[0][3].piece,"|",self.chessBoard.tiles[0][2].piece,"|",self.chessBoard.tiles[0][1].piece,"|",self.chessBoard.tiles[0][0].piece,"| 1")
@@ -342,8 +362,11 @@ while game.game_won == False:
         except TypeError:
             print("Incorrect input")
             continue
-        game.players[1].turn = True
-    """check board state"""
+        if game.check_winner(1) == True:
+            print(self.players[0].name, " has won the game!")
+            game.players[1].turn = False
+        else:
+            game.players[1].turn = True
     while game.players[1].turn == True:
         try:
             print("It is ",game.players[1].name, "'s turn")
@@ -356,7 +379,10 @@ while game.game_won == False:
         except TypeError:
             print("Incorrect input")
             continue
-        game.players[0].turn = True
-    """check board state"""
-"""report winner"""
+        if game.check_winner(0) == True:
+            print(self.players[1].name, " has won the game!")
+            game.players[0].turn = False
+        else:
+            game.players[0].turn = True
+
 
